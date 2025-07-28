@@ -17,11 +17,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Login to DockerHub
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build and push x86_64
         uses: docker/build-push-action@v3
@@ -30,9 +31,9 @@ jobs:
           push: true
           platforms: linux/amd64
           build-args: "ARCH=x86_64"
-          tags: sneakyberry/mv-extractor:dev-amd64
-          cache-from: type=registry,ref=sneakyberry/mv-extractor:buildcache-amd64
-          cache-to: type=registry,ref=sneakyberry/mv-extractor:buildcache-amd64,mode=max
+          tags: ghcr.io/${{ secrets.GHCR_USERNAME }}/mv-extractor:dev-amd64
+          cache-from: type=registry,ref=ghcr.io/${{ secrets.GHCR_USERNAME }}/mv-extractor:buildcache-amd64
+          cache-to: type=registry,ref=ghcr.io/${{ secrets.GHCR_USERNAME }}/mv-extractor:buildcache-amd64,mode=max
 
       - name: Build and push ARM
         uses: docker/build-push-action@v3
@@ -41,16 +42,15 @@ jobs:
           push: true
           platforms: linux/arm64
           build-args: "ARCH=aarch64"
-          tags: sneakyberry/mv-extractor:dev-aarch64
-          cache-from: type=registry,ref=sneakyberry/mv-extractor:buildcache-aarch64
-          cache-to: type=registry,ref=sneakyberry/mv-extractor:buildcache-aarch64,mode=max
+          tags: ghcr.io/${{ secrets.GHCR_USERNAME }}/mv-extractor:dev-aarch64
+          cache-from: type=registry,ref=ghcr.io/${{ secrets.GHCR_USERNAME }}/mv-extractor:buildcache-aarch64
+          cache-to: type=registry,ref=ghcr.io/${{ secrets.GHCR_USERNAME }}/mv-extractor:buildcache-aarch64,mode=max
 
   build_wheels:
     name: Build wheels for cp${{ matrix.python }}-${{ matrix.platform_id }}
     runs-on: ${{ matrix.os }}
     needs: build_docker
     strategy:
-      # Ensure that a wheel builder finishes even if another fails
       fail-fast: false
       matrix:
         include:
@@ -58,8 +58,8 @@ jobs:
           python: 310
           bitness: 64
           platform_id: manylinux
-          manylinux_x86_64_image: sneakyberry/mv-extractor:dev-amd64
-          manylinux_aarch64_image: sneakyberry/mv-extractor:dev-aarch64
+          manylinux_x86_64_image: ghcr.io/${{ secrets.GHCR_USERNAME }}/mv-extractor:dev-amd64
+          manylinux_aarch64_image: ghcr.io/${{ secrets.GHCR_USERNAME }}/mv-extractor:dev-aarch64
 
     steps:
       - name: Checkout
@@ -75,7 +75,6 @@ jobs:
         env:
           CIBW_PLATFORM: linux
           CIBW_BUILD: cp${{ matrix.python }}-${{ matrix.platform_id }}_*
-          # Disable building PyPy wheels on all platforms
           CIBW_SKIP: pp*
           CIBW_ARCHS: x86_64,aarch64
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.manylinux_x86_64_image }}
