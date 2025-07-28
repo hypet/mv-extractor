@@ -25,7 +25,7 @@ RUN yum update && \
     yum groupinstall 'Development Tools' -y
 
 # Install OpenCV
-RUN git clone https://github.com/opencv/opencv.git --branch 4.5.5 --depth 1 && \
+RUN git clone https://github.com/opencv/opencv.git --branch 4.12.0 --depth 1 && \
     mkdir -p opencv/build && \
     cd opencv/build && \
     cmake  \

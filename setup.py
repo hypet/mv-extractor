@@ -39,5 +39,5 @@ setup(name='motion-vector-extractor',
                      'extract_mvs=mvextractor.__main__:main',
               ],
        },
-       python_requires='>=3.8, <4',
-       install_requires=['pkgconfig>=1.5.1', 'numpy>=1.17.0', 'opencv-python>=4.1.0.25,<4.6'])
+       python_requires='>=3.9, <4',
+       install_requires=['numpy>=1.19.3', 'opencv-python>=4.4.0.46'])
