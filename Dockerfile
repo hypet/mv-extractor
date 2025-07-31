@@ -30,9 +30,14 @@ RUN git clone https://github.com/opencv/opencv.git --branch 4.12.0 --depth 1 && 
     cd opencv/build && \
     cmake  \
     -D CMAKE_BUILD_TYPE=RELEASE  \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D WITH_FFMPEG=ON \
     -D OPENCV_GENERATE_PKGCONFIG=YES  \
     -D OPENCV_ENABLE_NONFREE=OFF \
-    LD_LIST=core,imgproc  \
+    -D OPENCV_FFMPEG_USE_FIND_PACKAGE=OFF \
+    -D FFMPEG_INCLUDE_DIRS=/usr/local/include \
+    -D FFMPEG_LIBRARIES="/usr/local/lib/libavcodec.a;/usr/local/lib/libavformat.a;/usr/local/lib/libavutil.a;/usr/local/lib/libswscale.a;/usr/local/lib/libavresample.a" \
+    LD_LIST=core,imgproc,video,calib3d  \
     .. && \
     make -j$(nproc) && \
     make install && \
@@ -119,7 +124,7 @@ RUN cd ~/ffmpeg_sources && \
     tar xvf libpng-1.5.30.tar.xz && \
     cd libpng-1.5.30 && \
     ./autogen.sh && \
-    ./configure --disable-shared --enable-static && \
+    ./configure --disable-shared --enable-static CFLAGS="-fPIC" CXXFLAGS="-fPIC" && \
     make -j$(nproc) && \
     make install && \
     rm -rf ~/ffmpeg_sources/libpng-1.5.30.tar.xz \
